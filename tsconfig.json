@@ -7,7 +7,7 @@
         "allowJs": true,
         "strictNullChecks": true,
         "skipLibCheck": false,
-        "types": ["jest"],
+        "types": ["jest", "node"],
         "baseUrl": "src"
     }
 }

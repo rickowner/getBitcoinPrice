@@ -1,7 +1,9 @@
-import { ok, serverErrors, unauthorized } from '../../helpers/http/http-helpers'
-import { Authentication, AuthenticationModel, HttpRequest } from './get-bitcoin-price.protocols'
+import { badRequest, ok } from '../../helpers/http/http-helpers'
 
+import { MissingParamErrors } from '../../../presentation/erros/missing-param-errors'
+import { Validation } from '../../../presentation/protocols/validation'
 import { GetBitcoinPriceController } from './get-bitcoin-price'
+import { HttpRequest } from './get-bitcoin-price.protocols'
 
 const makeFakeRequestFactory = (): HttpRequest => ({
   body: {
@@ -9,52 +11,36 @@ const makeFakeRequestFactory = (): HttpRequest => ({
   }
 })
 
-const makeAuthenticationFactory = (): Authentication => {
-  class AuthenticationStub implements Authentication {
-    async auth (authentication: AuthenticationModel): Promise<string> {
-      return new Promise(resolve => resolve('any_token'))
+const makeValidationFactory = (): Validation => {
+  class ValidationStub implements Validation {
+    validate (input: any): Error {
+      return null as any
     }
   }
-  return new AuthenticationStub()
+  return new ValidationStub()
 }
 interface SutTypes {
   sut: GetBitcoinPriceController
-  authenticationStub: Authentication
+  validationStub: Validation
 }
 
 const makeSutFactory = (): SutTypes => {
-  const authenticationStub = makeAuthenticationFactory()
-  const sut = new GetBitcoinPriceController(authenticationStub)
+//   const authenticationStub = makeAuthenticationFactory()
+  const validationStub = makeValidationFactory()
+  const sut = new GetBitcoinPriceController(validationStub)
   return {
     sut,
-    authenticationStub
+    validationStub
   }
 }
 
 describe('GetBitcoinPrice Controller', () => {
-  test('Should call Authentication with correct currency', async () => {
-    const { sut, authenticationStub } = makeSutFactory()
-    const authSpy = jest.spyOn(authenticationStub, 'auth')
-    await sut.handle(makeFakeRequestFactory())
-    expect(authSpy).toHaveBeenCalledWith({ currency: 'USD' })
-  })
-
-  test('Should return 401 if invalid credentials are provided', async () => {
-    const { sut, authenticationStub } = makeSutFactory()
-    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(
-      new Promise(resolve => resolve(null as any)))
-    const httpResponse = await sut.handle(makeFakeRequestFactory())
-    expect(httpResponse).toEqual(unauthorized())
-  })
-
-  test('Should return 500 if Authentication throws', async () => {
-    const { sut, authenticationStub } = makeSutFactory()
-    // jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(() => { throw new Error() })
-    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(
-      new Promise((resolve, reject) => reject(new Error()))
-    )
-    const httpResponse = await sut.handle(makeFakeRequestFactory())
-    expect(httpResponse).toEqual(serverErrors(new Error()))
+  test('Should call Validation with correct value', async () => {
+    const { sut, validationStub } = makeSutFactory()
+    const validateSpy = jest.spyOn(validationStub, 'validate')
+    const httpRequest = makeFakeRequestFactory()
+    await sut.handle(httpRequest)
+    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 
   test('Should returns 200 GetBitcoinPrice if valid currency are provided', async () => {
@@ -63,5 +49,11 @@ describe('GetBitcoinPrice Controller', () => {
     expect(httpResponse).toEqual(ok({
       currency: 'USD'
     }))
+  })
+  test('Should return 400 if Validation returns an error', async () => {
+    const { sut, validationStub } = makeSutFactory()
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new MissingParamErrors('any_field'))
+    const httpResponse = await sut.handle(makeFakeRequestFactory())
+    expect(httpResponse).toEqual(badRequest(new MissingParamErrors('any_field')))
   })
 })
