@@ -1,7 +1,7 @@
 
 # **Clean Architeture Node API - BlockBR**
 
-[![alt text](./public/img/logo-procject.png "Link para o treinamento")]
+[![alt text](./public/img/logo-project.png "Link para o treinamento")]
 
 ---
 
