@@ -31,6 +31,9 @@ export default (router: Router): void => {
         return newObj
       }
     })
+    if (newObj === undefined) {
+      res.status(400).send({ message: 'Bad Request' })
+    }
     // console.log('res:', newObj)
     return res.json(newObj)
   })

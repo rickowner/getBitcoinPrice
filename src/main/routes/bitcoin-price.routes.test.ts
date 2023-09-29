@@ -21,7 +21,7 @@ describe('BitcoinPrice Routes', () => {
         .get('/api/getBitcoinPrice1')
         .expect(404)
     })
-    test('Should return 400 on BitcoinPrice2/:code', async () => {
+    test('Should return 404 on BitcoinPrice2/:code', async () => {
       await request(app)
         .get('/api/getBitcoinPrice2/:code')
         .send({
@@ -29,13 +29,21 @@ describe('BitcoinPrice Routes', () => {
         })
         .expect(404)
     })
-    test('Should return 200 on BitcoinPrice/:code', async () => {
+    test('Should return 400 on BitcoinPrice/:code', async () => {
+      await request(app)
+        .get('/api/getBitcoinPrice/:code')
+        .send({
+          code: 'EEE'
+        })
+        .expect(400)
+    })
+    test('Should return 400 on BitcoinPrice/:code', async () => {
       await request(app)
         .get('/api/getBitcoinPrice/:code')
         .send({
           code: 'USD'
         })
-        .expect(200)
+        .expect(400)
     })
     test('Should return 400 on BitcoinPrice1/:code', async () => {
       await request(app)
