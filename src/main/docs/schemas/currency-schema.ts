@@ -4,9 +4,4 @@ export const currencyALLSchema = {
 
 export const currencySchema = {
   type: 'string'
-  // properties: {
-  //   currency: {
-  //     type: 'string'
-  //   }
-  // }
 }

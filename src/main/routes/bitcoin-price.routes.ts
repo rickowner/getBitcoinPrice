@@ -3,7 +3,6 @@ import fetch from 'cross-fetch'
 import { Router } from 'express'
 
 export default (router: Router): void => {
-  // router.get('/getBitcoinPrice', adaptRoute(makeGetBitcoinPriceControllerFactory()))
   router.get('/getBitcoinPrice', async (req, res) => {
     const uri = 'https://api.coindesk.com/v1/bpi/currentprice.json'
     const response = await fetch(uri, {
@@ -32,7 +31,7 @@ export default (router: Router): void => {
         return newObj
       }
     })
-    console.log('res:', newObj)
+    // console.log('res:', newObj)
     return res.json(newObj)
   })
   router.get('/getBitcoinPrice1/:code', async (req, res) => {
@@ -48,7 +47,10 @@ export default (router: Router): void => {
         return newObj
       }
     })
-    console.log('res:', newObj)
+    // console.log('res:', newObj)
+    if (newObj === undefined) {
+      res.status(400).send({ message: 'Bad Request' })
+    }
     return res.json(newObj)
   })
 }

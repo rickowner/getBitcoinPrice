@@ -10,5 +10,8 @@ module.exports = {
   preset: '@shelf/jest-mongodb',
   transform: {
     '^.+\\.(t|j)sx?$': 'ts-jest'
+  },
+  moduleNameMapper: {
+    axios: 'axios/dist/node/axios.cjs'
   }
 }
